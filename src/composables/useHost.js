@@ -45,33 +45,35 @@ export function useHost(roomCode) {
     if (isSpinning.value || entries.value.length === 0) return
     isSpinning.value = true
 
-    const idx = Math.floor(Math.random() * entries.value.length)
-    const picked = entries.value.splice(idx, 1)[0]
+    try {
+      const idx = Math.floor(Math.random() * entries.value.length)
+      const picked = entries.value.splice(idx, 1)[0]
 
-    log.value.unshift({ participantId, name, label: picked.label, timestamp: new Date() })
+      log.value.unshift({ participantId, name, label: picked.label, timestamp: new Date() })
 
-    mainChannel.send({
-      type: 'broadcast',
-      event: 'entry_removed',
-      payload: {
-        segments: entries.value.map(({ id, color }) => ({ id, color })),
-      },
-    })
+      mainChannel.send({
+        type: 'broadcast',
+        event: 'entry_removed',
+        payload: {
+          segments: entries.value.map(({ id, color }) => ({ id, color })),
+        },
+      })
 
-    // If host missed the join event, create private channel on-demand
-    if (!participantChannels.has(participantId)) {
-      const ch = supabase.channel(`room:${roomCode}:result:${participantId}`)
-      await ch.subscribe()
-      participantChannels.set(participantId, ch)
+      // If host missed the join event, create private channel on-demand
+      if (!participantChannels.has(participantId)) {
+        const ch = supabase.channel(`room:${roomCode}:result:${participantId}`)
+        await ch.subscribe()
+        participantChannels.set(participantId, ch)
+      }
+
+      participantChannels.get(participantId).send({
+        type: 'broadcast',
+        event: 'spin_result',
+        payload: { label: picked.label },
+      })
+    } finally {
+      isSpinning.value = false
     }
-
-    participantChannels.get(participantId).send({
-      type: 'broadcast',
-      event: 'spin_result',
-      payload: { label: picked.label },
-    })
-
-    isSpinning.value = false
   }
 
   function subscribe() {

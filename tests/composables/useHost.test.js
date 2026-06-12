@@ -8,7 +8,6 @@ const mockChannel = {
   on: (...args) => { mockOn(...args); return mockChannel },
   subscribe: (...args) => { mockSubscribe(...args); return mockChannel },
 }
-const mockRemoveChannel = vi.fn()
 
 vi.mock('../../src/lib/supabase', () => ({
   supabase: {
