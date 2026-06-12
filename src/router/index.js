@@ -7,5 +7,6 @@ export const router = createRouter({
   routes: [
     { path: '/', component: HomePage },
     { path: '/room/:code', component: RoomPage },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

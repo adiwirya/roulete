@@ -5,7 +5,7 @@
       Belum ada yang spin.
     </p>
     <ul style="list-style: none; padding: 0; margin: 0">
-      <li v-for="(entry, i) in log" :key="i" style="margin-bottom: 6px">
+      <li v-for="(entry, i) in log" :key="`${entry.participantId}-${entry.timestamp}`" style="margin-bottom: 6px">
         <strong>{{ entry.name }}</strong>
         <span style="margin: 0 6px">→</span>
         {{ entry.label }}

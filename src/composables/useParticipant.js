@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 export function useParticipant(roomCode, participantId, name) {
   const segments = ref([])
   const myResult = ref(null)
-  const hasSpun = ref(false)
+  const hasSpun = ref(!!localStorage.getItem(`room:${roomCode}:spun:${participantId}`))
   const isSpinning = ref(false)
 
   let mainChannel = null
@@ -13,6 +13,7 @@ export function useParticipant(roomCode, participantId, name) {
   function spin() {
     if (hasSpun.value || isSpinning.value || segments.value.length === 0) return
     isSpinning.value = true
+    setTimeout(() => { isSpinning.value = false }, 10_000)
     mainChannel.send({
       type: 'broadcast',
       event: 'spin_request',
@@ -43,6 +44,7 @@ export function useParticipant(roomCode, participantId, name) {
       .on('broadcast', { event: 'spin_result' }, ({ payload }) => {
         myResult.value = payload.label
         hasSpun.value = true
+        localStorage.setItem(`room:${roomCode}:spun:${participantId}`, '1')
         isSpinning.value = false
       })
       .subscribe()

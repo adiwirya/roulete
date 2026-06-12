@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-defineProps({ result: { type: String, default: null } })
+defineProps({ result: { type: [String, null], default: null } })
 defineEmits(['close'])
 </script>
 
