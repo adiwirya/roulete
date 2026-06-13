@@ -7,12 +7,13 @@ export function useParticipant(roomCode, participantId, name) {
   const hasSpun = ref(!!localStorage.getItem(`room:${roomCode}:spun:${participantId}`))
   const isSpinning = ref(false)
   const sessionClosed = ref(false)
+  const myTurn = ref(false)
 
   let mainChannel = null
   let privateChannel = null
 
   function spin() {
-    if (hasSpun.value || isSpinning.value || segments.value.length === 0) return
+    if (hasSpun.value || isSpinning.value || segments.value.length === 0 || !myTurn.value) return
     isSpinning.value = true
     setTimeout(() => { isSpinning.value = false }, 10_000)
     mainChannel.send({
@@ -32,6 +33,9 @@ export function useParticipant(roomCode, participantId, name) {
         segments.value = payload.segments
         isSpinning.value = false
       })
+      .on('broadcast', { event: 'turn_update' }, ({ payload }) => {
+        myTurn.value = payload.currentParticipantId === participantId
+      })
       .on('broadcast', { event: 'session_closed' }, () => {
         sessionClosed.value = true
       })
@@ -48,6 +52,7 @@ export function useParticipant(roomCode, participantId, name) {
       .on('broadcast', { event: 'spin_result' }, ({ payload }) => {
         myResult.value = payload.label
         hasSpun.value = true
+        myTurn.value = false
         localStorage.setItem(`room:${roomCode}:spun:${participantId}`, '1')
         isSpinning.value = false
       })
@@ -59,5 +64,5 @@ export function useParticipant(roomCode, participantId, name) {
     if (privateChannel) supabase.removeChannel(privateChannel)
   }
 
-  return { segments, myResult, hasSpun, isSpinning, sessionClosed, spin, subscribe, unsubscribe }
+  return { segments, myResult, hasSpun, isSpinning, sessionClosed, myTurn, spin, subscribe, unsubscribe }
 }

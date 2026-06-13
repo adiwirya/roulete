@@ -22,7 +22,7 @@
         <button
           @click="onSpin"
           class="btn btn-spin"
-          :disabled="hasSpun || isSpinning || wheelSegments.length === 0"
+          :disabled="hasSpun || isSpinning || wheelSegments.length === 0 || !myTurn"
         >
           {{ spinButtonLabel }}
         </button>
@@ -81,6 +81,7 @@ const isSpinning = computed(() =>
   isHost ? (host?.isSpinning.value ?? false) : (participant?.isSpinning.value ?? false)
 )
 const hasSpun = computed(() => participant?.hasSpun.value ?? false)
+const myTurn = computed(() => participant?.myTurn.value ?? false)
 const hostEntries = computed(() => host?.entries.value ?? [])
 const hostLog = computed(() => host?.log.value ?? [])
 const myResult = ref(null)
@@ -89,6 +90,7 @@ const spinButtonLabel = computed(() => {
   if (hasSpun.value) return 'Sudah Spin ✓'
   if (isSpinning.value) return 'Spinning...'
   if (wheelSegments.value.length === 0) return 'Menunggu...'
+  if (!myTurn.value) return 'Tunggu giliran...'
   return 'Spin!'
 })
 

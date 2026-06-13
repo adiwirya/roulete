@@ -37,9 +37,10 @@ describe('useParticipant', () => {
   })
 
   it('spin broadcasts spin_request with participantId and name', () => {
-    const { segments, spin, subscribe } = useParticipant('ROOM', 'pid1', 'Alice')
+    const { segments, myTurn, spin, subscribe } = useParticipant('ROOM', 'pid1', 'Alice')
     subscribe()
     segments.value = [{ id: '1', color: '#fff' }]
+    myTurn.value = true
     spin()
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({

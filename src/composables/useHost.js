@@ -7,6 +7,7 @@ export function useHost(roomCode) {
   const log = ref([])
   const participants = ref([])
   const isSpinning = ref(false)
+  const currentTurnIndex = ref(0)
 
   let mainChannel = null
   const participantChannels = new Map()
@@ -29,6 +30,15 @@ export function useHost(roomCode) {
     })
   }
 
+  function broadcastTurnUpdate() {
+    const current = participants.value[currentTurnIndex.value]
+    mainChannel.send({
+      type: 'broadcast',
+      event: 'turn_update',
+      payload: { currentParticipantId: current?.id ?? null },
+    })
+  }
+
   async function handleJoin({ participantId, name }) {
     if (!participants.value.find(p => p.id === participantId)) {
       participants.value.push({ id: participantId, name })
@@ -39,10 +49,15 @@ export function useHost(roomCode) {
       participantChannels.set(participantId, ch)
     }
     broadcastWheelUpdate()
+    broadcastTurnUpdate()
   }
 
   async function handleSpinRequest({ participantId, name }) {
     if (isSpinning.value || entries.value.length === 0) return
+
+    const currentParticipant = participants.value[currentTurnIndex.value]
+    if (!currentParticipant || currentParticipant.id !== participantId) return
+
     isSpinning.value = true
 
     try {
@@ -51,6 +66,8 @@ export function useHost(roomCode) {
 
       log.value.unshift({ participantId, name, label: picked.label, timestamp: new Date() })
 
+      currentTurnIndex.value++
+
       mainChannel.send({
         type: 'broadcast',
         event: 'entry_removed',
@@ -58,6 +75,8 @@ export function useHost(roomCode) {
           segments: entries.value.map(({ id, color }) => ({ id, color })),
         },
       })
+
+      broadcastTurnUpdate()
 
       // If host missed the join event, create private channel on-demand
       if (!participantChannels.has(participantId)) {
