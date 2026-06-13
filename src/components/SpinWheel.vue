@@ -28,10 +28,10 @@ let spinStartedAt = 0
 let lastTickAngle = 0
 let didSpin = false
 
-const MIN_SPIN_MS = 5000   // keep spinning for at least 5 s
+const MIN_SPIN_MS = 2500   // full-speed phase
 const MAX_SPEED = 0.30
 const ACCEL = 0.013
-const DECEL = 0.993        // slow deceleration for dramatic effect
+const DECEL = 0.960        // total ~5s (2.5s full + ~2.5s decel)
 
 watch(() => props.spinning, (val) => {
   if (val) {
