@@ -6,6 +6,7 @@ export function useParticipant(roomCode, participantId, name) {
   const myResult = ref(null)
   const hasSpun = ref(!!localStorage.getItem(`room:${roomCode}:spun:${participantId}`))
   const isSpinning = ref(false)
+  const sessionClosed = ref(false)
 
   let mainChannel = null
   let privateChannel = null
@@ -31,6 +32,9 @@ export function useParticipant(roomCode, participantId, name) {
         segments.value = payload.segments
         isSpinning.value = false
       })
+      .on('broadcast', { event: 'session_closed' }, () => {
+        sessionClosed.value = true
+      })
       .subscribe(() => {
         mainChannel.send({
           type: 'broadcast',
@@ -55,5 +59,5 @@ export function useParticipant(roomCode, participantId, name) {
     if (privateChannel) supabase.removeChannel(privateChannel)
   }
 
-  return { segments, myResult, hasSpun, isSpinning, spin, subscribe, unsubscribe }
+  return { segments, myResult, hasSpun, isSpinning, sessionClosed, spin, subscribe, unsubscribe }
 }

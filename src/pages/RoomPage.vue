@@ -1,10 +1,14 @@
 <template>
   <div class="page-room">
     <div class="room-main">
-      <h2 class="room-heading">
-        Room: <span class="room-code-chip">{{ code }}</span>
-        <span v-if="isHost" class="host-badge">Host</span>
-      </h2>
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center">
+        <h2 class="room-heading">
+          Room: <span class="room-code-chip">{{ code }}</span>
+          <span v-if="isHost" class="host-badge">Host</span>
+        </h2>
+        <button v-if="isHost" @click="handleCloseSession" class="btn btn-danger">Tutup Session</button>
+        <button v-else @click="handleLeave" class="btn btn-ghost">Tinggalkan</button>
+      </div>
 
       <SpinWheel
         :segments="wheelSegments"
@@ -94,6 +98,14 @@ watchEffect(() => {
   }
 })
 
+watchEffect(() => {
+  if (participant?.sessionClosed.value) {
+    participant.unsubscribe()
+    localStorage.removeItem(`room:${code}`)
+    router.replace('/')
+  }
+})
+
 onMounted(() => {
   if (isHost) host?.subscribe()
   else participant?.subscribe()
@@ -106,5 +118,19 @@ onUnmounted(() => {
 
 function onSpin() {
   if (!isHost) participant?.spin()
+}
+
+function handleCloseSession() {
+  if (!confirm('Tutup session? Semua peserta akan dikembalikan ke halaman utama.')) return
+  host.closeSession()
+  host.unsubscribe()
+  localStorage.removeItem(`room:${code}`)
+  router.replace('/')
+}
+
+function handleLeave() {
+  participant?.unsubscribe()
+  localStorage.removeItem(`room:${code}`)
+  router.replace('/')
 }
 </script>

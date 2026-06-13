@@ -84,11 +84,21 @@ export function useHost(roomCode) {
       .subscribe()
   }
 
+  function closeSession() {
+    if (mainChannel) {
+      mainChannel.send({
+        type: 'broadcast',
+        event: 'session_closed',
+        payload: {},
+      })
+    }
+  }
+
   function unsubscribe() {
     if (mainChannel) supabase.removeChannel(mainChannel)
     participantChannels.forEach(ch => supabase.removeChannel(ch))
     participantChannels.clear()
   }
 
-  return { entries, log, participants, isSpinning, initEntries, subscribe, unsubscribe }
+  return { entries, log, participants, isSpinning, initEntries, subscribe, unsubscribe, closeSession }
 }
