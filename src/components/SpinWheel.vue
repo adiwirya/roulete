@@ -10,6 +10,7 @@
 
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { playTick } from '../utils/sounds'
 
 const props = defineProps({
   segments: { type: Array, required: true },
@@ -17,12 +18,27 @@ const props = defineProps({
   spinning: { type: Boolean, default: false },
   size: { type: Number, default: 400 },
 })
-defineEmits(['spin'])
+const emit = defineEmits(['spin', 'spinEnd'])
 
 const canvasRef = ref(null)
 let animationId = null
 let currentAngle = 0
 let spinSpeed = 0
+let spinStartedAt = 0
+let lastTickAngle = 0
+let didSpin = false
+
+const MIN_SPIN_MS = 5000   // keep spinning for at least 5 s
+const MAX_SPEED = 0.30
+const ACCEL = 0.013
+const DECEL = 0.993        // slow deceleration for dramatic effect
+
+watch(() => props.spinning, (val) => {
+  if (val) {
+    spinStartedAt = performance.now()
+    didSpin = true
+  }
+})
 
 function draw(angle) {
   const canvas = canvasRef.value
@@ -94,13 +110,39 @@ function draw(angle) {
 }
 
 function animate() {
-  if (props.spinning) {
-    spinSpeed = Math.min(spinSpeed + 0.015, 0.35)
-  } else if (spinSpeed > 0) {
-    spinSpeed *= 0.97
-    if (spinSpeed < 0.001) spinSpeed = 0
+  const elapsed = spinStartedAt > 0 ? performance.now() - spinStartedAt : Infinity
+  const keepSpinning = props.spinning || (spinStartedAt > 0 && elapsed < MIN_SPIN_MS)
+
+  if (keepSpinning) {
+    spinSpeed = Math.min(spinSpeed + ACCEL, MAX_SPEED)
+  } else {
+    if (spinStartedAt > 0 && elapsed >= MIN_SPIN_MS) spinStartedAt = 0
+    if (spinSpeed > 0) {
+      spinSpeed *= DECEL
+      if (spinSpeed < 0.001) {
+        spinSpeed = 0
+        if (didSpin) {
+          didSpin = false
+          emit('spinEnd')
+        }
+      }
+    }
   }
+
   currentAngle += spinSpeed
+
+  // Tick sound: fire on each segment boundary crossing
+  if (spinSpeed > 0.02 && props.segments.length > 0) {
+    const segAngle = (2 * Math.PI) / props.segments.length
+    const delta = currentAngle - lastTickAngle
+    if (delta >= segAngle) {
+      lastTickAngle = currentAngle - (delta % segAngle)
+      playTick(spinSpeed / MAX_SPEED)
+    }
+  } else {
+    lastTickAngle = currentAngle
+  }
+
   draw(currentAngle)
   animationId = requestAnimationFrame(animate)
 }

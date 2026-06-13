@@ -16,6 +16,7 @@
         :spinning="isSpinning"
         :size="400"
         @spin="onSpin"
+        @spinEnd="onSpinEnd"
       />
 
       <template v-if="!isHost">
@@ -85,6 +86,8 @@ const myTurn = computed(() => participant?.myTurn.value ?? false)
 const hostEntries = computed(() => host?.entries.value ?? [])
 const hostLog = computed(() => host?.log.value ?? [])
 const myResult = ref(null)
+const pendingResult = ref(null)
+let spinEnded = false
 
 const spinButtonLabel = computed(() => {
   if (hasSpun.value) return 'Sudah Spin ✓'
@@ -96,9 +99,23 @@ const spinButtonLabel = computed(() => {
 
 watchEffect(() => {
   if (participant?.myResult.value) {
-    myResult.value = participant.myResult.value
+    pendingResult.value = participant.myResult.value
+    tryRevealResult()
   }
 })
+
+function tryRevealResult() {
+  if (spinEnded && pendingResult.value) {
+    myResult.value = pendingResult.value
+    pendingResult.value = null
+    spinEnded = false
+  }
+}
+
+function onSpinEnd() {
+  spinEnded = true
+  tryRevealResult()
+}
 
 watchEffect(() => {
   if (participant?.sessionClosed.value) {
