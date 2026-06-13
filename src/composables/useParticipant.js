@@ -40,11 +40,16 @@ export function useParticipant(roomCode, participantId, name) {
         sessionClosed.value = true
       })
       .subscribe(() => {
-        mainChannel.send({
+        const sendJoin = () => mainChannel.send({
           type: 'broadcast',
           event: 'join',
           payload: { participantId, name },
         })
+        sendJoin()
+        // Retry if host missed the first join (race condition on subscribe)
+        setTimeout(() => {
+          if (segments.value.length === 0 && !hasSpun.value) sendJoin()
+        }, 2500)
       })
 
     privateChannel = supabase.channel(`room:${roomCode}:result:${participantId}`)

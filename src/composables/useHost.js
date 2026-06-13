@@ -43,13 +43,15 @@ export function useHost(roomCode) {
     if (!participants.value.find(p => p.id === participantId)) {
       participants.value.push({ id: participantId, name })
     }
+    // Broadcast immediately — don't block on private channel setup
+    broadcastWheelUpdate()
+    broadcastTurnUpdate()
+    // Subscribe private channel in background
     if (!participantChannels.has(participantId)) {
       const ch = supabase.channel(`room:${roomCode}:result:${participantId}`)
       await ch.subscribe()
       participantChannels.set(participantId, ch)
     }
-    broadcastWheelUpdate()
-    broadcastTurnUpdate()
   }
 
   async function handleSpinRequest({ participantId, name }) {
