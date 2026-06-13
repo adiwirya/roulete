@@ -1,17 +1,13 @@
 <template>
   <div>
-    <h3 style="margin: 0 0 8px">Log Hasil</h3>
-    <p v-if="log.length === 0" style="color: #9ca3af; font-style: italic">
-      Belum ada yang spin.
-    </p>
-    <ul style="list-style: none; padding: 0; margin: 0">
-      <li v-for="(entry, i) in log" :key="`${entry.participantId}-${entry.timestamp}`" style="margin-bottom: 6px">
-        <strong>{{ entry.name }}</strong>
-        <span style="margin: 0 6px">→</span>
-        {{ entry.label }}
-        <span style="color: #9ca3af; font-size: 0.75rem; margin-left: 8px">
-          {{ formatTime(entry.timestamp) }}
-        </span>
+    <h3 class="list-title">Log Hasil</h3>
+    <p v-if="log.length === 0" class="empty-hint">Belum ada yang spin.</p>
+    <ul class="log-list">
+      <li v-for="entry in log" :key="`${entry.participantId}-${entry.timestamp}`" class="log-item">
+        <span class="log-name">{{ entry.name }}</span>
+        <span class="log-arrow">→</span>
+        <span class="log-result">{{ entry.label }}</span>
+        <span class="log-time">{{ formatTime(entry.timestamp) }}</span>
       </li>
     </ul>
   </div>

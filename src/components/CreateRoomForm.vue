@@ -1,14 +1,14 @@
 <template>
   <form @submit.prevent="submit">
-    <div>
-      <label>Nama Host</label>
-      <input name="hostName" v-model="hostName" type="text" placeholder="Nama kamu" />
+    <div class="form-group">
+      <label class="form-label">Nama Host</label>
+      <input name="hostName" v-model="hostName" type="text" class="form-input" placeholder="Nama kamu" />
     </div>
-    <div>
-      <label>Daftar Entry (satu per baris, minimal 2)</label>
-      <textarea name="entries" v-model="entriesText" placeholder="Alice&#10;Bob&#10;Charlie" rows="8" />
+    <div class="form-group">
+      <label class="form-label">Daftar Entry (satu per baris, minimal 2)</label>
+      <textarea name="entries" v-model="entriesText" class="form-textarea" placeholder="Alice&#10;Bob&#10;Charlie" rows="8" />
     </div>
-    <button type="submit" :disabled="!isValid">Buat Room</button>
+    <button type="submit" class="btn btn-primary" :disabled="!isValid">Buat Room</button>
   </form>
 </template>
 

@@ -1,9 +1,9 @@
 <template>
-  <div style="display: flex; gap: 32px; padding: 24px; max-width: 1100px; margin: 0 auto; min-height: 100vh">
-    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 16px">
-      <h2 style="margin: 0">
-        Room: <code>{{ code }}</code>
-        <span v-if="isHost" style="font-size: 0.8rem; color: #6b7280; margin-left: 8px">(Host)</span>
+  <div class="page-room">
+    <div class="room-main">
+      <h2 class="room-heading">
+        Room: <span class="room-code-chip">{{ code }}</span>
+        <span v-if="isHost" class="host-badge">Host</span>
       </h2>
 
       <SpinWheel
@@ -17,19 +17,21 @@
       <template v-if="!isHost">
         <button
           @click="onSpin"
+          class="btn btn-spin"
           :disabled="hasSpun || isSpinning || wheelSegments.length === 0"
-          style="padding: 14px 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 12px; border: none; background: #3b82f6; color: white"
         >
           {{ spinButtonLabel }}
         </button>
-        <p v-if="wheelSegments.length === 0 && !hasSpun" style="color: #9ca3af">
+        <p v-if="wheelSegments.length === 0 && !hasSpun" class="wait-text">
           Menunggu host memulai...
         </p>
       </template>
     </div>
 
-    <div v-if="isHost" style="width: 300px; overflow-y: auto; padding: 8px">
-      <HostPanel :code="code" :entries="hostEntries" :log="hostLog" />
+    <div v-if="isHost" class="room-sidebar">
+      <div class="glass" style="padding: 24px">
+        <HostPanel :code="code" :entries="hostEntries" :log="hostLog" />
+      </div>
     </div>
 
     <ResultModal :result="myResult" @close="myResult = null" />
@@ -51,7 +53,6 @@ const code = route.params.code
 
 const stored = JSON.parse(localStorage.getItem(`room:${code}`) || 'null')
 
-// Redirect to home with pre-filled code if no session found
 if (!stored) {
   router.replace(`/?join=${code}`)
 }
@@ -59,6 +60,8 @@ if (!stored) {
 const isHost = stored?.role === 'host'
 
 const host = isHost ? useHost(code) : null
+if (isHost && host) host.initEntries(stored.entries)
+
 const participant = stored?.role === 'participant'
   ? useParticipant(code, stored.participantId, stored.participantName)
   : null

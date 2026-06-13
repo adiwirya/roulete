@@ -1,9 +1,9 @@
 <template>
-  <div style="display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 20px">
     <SharePanel :code="code" />
-    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0" />
+    <hr class="divider-h" />
     <EntryList :entries="entries" />
-    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0" />
+    <hr class="divider-h" />
     <SpinLog :log="log" />
   </div>
 </template>

@@ -1,21 +1,22 @@
 <template>
   <form @submit.prevent="submit">
-    <div>
-      <label>Room Code</label>
+    <div class="form-group">
+      <label class="form-label">Room Code</label>
       <input
         name="roomCode"
         v-model="roomCode"
         type="text"
+        class="form-input"
         placeholder="ABC123"
         maxlength="8"
-        style="text-transform: uppercase"
+        style="text-transform: uppercase; letter-spacing: 0.15em; font-family: 'Courier New', monospace; font-size: 1.05rem;"
       />
     </div>
-    <div>
-      <label>Nama Kamu</label>
-      <input name="participantName" v-model="participantName" type="text" placeholder="Namamu" />
+    <div class="form-group">
+      <label class="form-label">Nama Kamu</label>
+      <input name="participantName" v-model="participantName" type="text" class="form-input" placeholder="Namamu" />
     </div>
-    <button type="submit" :disabled="!isValid">Join Room</button>
+    <button type="submit" class="btn btn-primary" :disabled="!isValid">Join Room</button>
   </form>
 </template>
 

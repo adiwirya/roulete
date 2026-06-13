@@ -1,11 +1,9 @@
 <template>
   <div>
-    <p style="margin: 0; color: #6b7280; font-size: 0.875rem">Room Code</p>
-    <p style="font-size: 2.5rem; font-weight: 800; letter-spacing: 0.25em; margin: 4px 0">
-      {{ code }}
-    </p>
-    <p style="font-size: 0.75rem; color: #9ca3af; word-break: break-all">{{ roomUrl }}</p>
-    <canvas ref="qrCanvas" style="margin-top: 8px" />
+    <p class="share-label">Room Code</p>
+    <p class="share-code">{{ code }}</p>
+    <p class="share-url">{{ roomUrl }}</p>
+    <canvas ref="qrCanvas" style="margin-top: 8px; border-radius: 8px;" />
   </div>
 </template>
 
@@ -18,6 +16,10 @@ const qrCanvas = ref(null)
 const roomUrl = computed(() => `${window.location.origin}/room/${props.code}`)
 
 onMounted(async () => {
-  await QRCode.toCanvas(qrCanvas.value, roomUrl.value, { width: 180, margin: 1 })
+  await QRCode.toCanvas(qrCanvas.value, roomUrl.value, {
+    width: 180,
+    margin: 1,
+    color: { dark: '#1e1b4b', light: '#ffffff' },
+  })
 })
 </script>
