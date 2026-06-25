@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Pulled from a local .env file (compose substitutes ${...} automatically).
+        # Required at BUILD time because Vite inlines them into the static bundle.
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:?set VITE_SUPABASE_URL in .env}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:?set VITE_SUPABASE_ANON_KEY in .env}
+    image: spinwheel:latest
+    container_name: spinwheel
+    ports:
+      - "8080:80"
+    restart: unless-stopped
